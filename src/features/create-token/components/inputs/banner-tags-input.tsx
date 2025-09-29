@@ -1,0 +1,104 @@
+import { useFormContext } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import type { CreateTokenFormData } from "../../schema";
+import { BottomBar, Button, Checkbox, Input } from "@worldcoin/mini-apps-ui-kit-react";
+import { useState } from "react";
+import { BottomDraw } from "@/components/shared/bottom-draw";
+import ErrorIcon from "@/assets/icons/error-triangle.svg?react";
+import { useTranslation } from "react-i18next";
+
+const ArrowDownIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <g clipPath="url(#clip0_66_7792)">
+        <path
+          fill-rule="evenodd"
+          clipRule="evenodd"
+          d="M8.47124 10.4712C8.34622 10.5962 8.17668 10.6664 7.9999 10.6664C7.82313 10.6664 7.65359 10.5962 7.52857 10.4712L3.75724 6.6999C3.69356 6.63841 3.64277 6.56484 3.60784 6.48351C3.5729 6.40217 3.55451 6.31469 3.55374 6.22617C3.55297 6.13765 3.56983 6.04986 3.60336 5.96793C3.63688 5.886 3.68638 5.81157 3.74897 5.74897C3.81157 5.68638 3.886 5.63688 3.96793 5.60336C4.04986 5.56983 4.13765 5.55297 4.22617 5.55374C4.31469 5.55451 4.40217 5.5729 4.48351 5.60784C4.56484 5.64277 4.63841 5.69356 4.6999 5.75724L7.9999 9.05724L11.2999 5.75724C11.4256 5.6358 11.594 5.5686 11.7688 5.57012C11.9436 5.57164 12.1108 5.64175 12.2344 5.76536C12.3581 5.88896 12.4282 6.05617 12.4297 6.23097C12.4312 6.40577 12.364 6.57417 12.2426 6.6999L8.47124 10.4712Z"
+          fill="#777E91"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_66_7792">
+          <rect width="16" height="16" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+};
+
+export function BannerTagsInput() {
+  const {
+    register,
+    formState: { errors },
+    setValue,
+  } = useFormContext<CreateTokenFormData>();
+  const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
+  const [selectedTags, setSelectedTags] = useState<string[]>(["Meme"]);
+
+  const listTags = [
+    { value: "Crypto", label: t("createToken.crypto") },
+    { value: "Meme", label: t("createToken.meme") },
+    { value: "AI", label: t("createToken.ai") },
+    { value: "Trading Competition", label: t("createToken.tradingCompetition") },
+    { value: "MEME lord", label: t("createToken.memeLord") },
+  ];
+
+  // Function to handle tag selection
+  const handleTagSelect = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  // console.log("Selected Tags:", selectedTags);
+  const handleSave = () => {
+    setValue("tags", selectedTags.join(","));
+    setOpen(false);
+  };
+
+  return (
+    <div className="">
+      <Label className="mb-2 block text-[#141416]">{t("createToken.tags")}</Label>
+      <Input
+        className="!placeholder:text-[#777E90] !placeholder:text-sm !placeholder:font-normal !placeholder:leading-5 !placeholder:tracking-[-0.56px] w-full rounded-full border border-[#E6E8EC] bg-transparent text-sm focus:outline-none"
+        endAdornment={<ArrowDownIcon />}
+        label="Tags"
+        {...register("tags")}
+        readOnly
+        onClick={() => setOpen(true)}
+      />
+      {errors.tags && (
+        <p className="mt-1 flex items-center gap-1 text-sm text-red-500">
+          {" "}
+          <ErrorIcon className="color-[#FF3E56] h-[14px] w-[14px]" />
+          {errors.tags.message}
+        </p>
+      )}
+      <BottomDraw isOpen={open} onClose={() => setOpen(false)} title={t("createToken.selectTags")}>
+        <div className="flex flex-col gap-1 p-4">
+          {listTags.map(item => (
+            <div
+              key={item.value}
+              className="flex justify-between"
+              onClick={() => handleTagSelect(item.value)}
+            >
+              <span className="p-2 text-[14px] font-medium not-italic leading-[20px] tracking-[-0.56px]">
+                {item.label}
+              </span>{" "}
+              <Checkbox checked={selectedTags.includes(item.value)} />
+            </div>
+          ))}
+        </div>
+        <div className="px-4">
+          <BottomBar>
+            <Button onClick={handleSave}>{t("createToken.save")}</Button>
+          </BottomBar>
+        </div>
+      </BottomDraw>
+    </div>
+  );
+}
